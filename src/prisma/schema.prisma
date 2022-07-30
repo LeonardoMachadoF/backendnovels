@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id @default(uuid())
+  name           String
+  surname        String
+  email          String           @unique
+  passwordHash   String
+  viwed          ViewsOnNovel[]
+  profilePicture String?
+  description    String?
+  createdAt      DateTime         @default(now())
+  role           Role             @default(USER)
+  favorites      FavoriteOnUser[]
+
+  @@map("users")
+}
+
+model Novel {
+  id           String               @id @default(uuid())
+  title        String
+  slug         String
+  imagesUrl    String               @default("https://kangsblackbeltacademy.com/wp-content/uploads/2017/04/default-image.jpg")
+  rate         Int?                 @default(0)
+  views        ViewsOnNovel[]
+  description  String?
+  country_id   String?
+  status       Status               @default(ONGOING)
+  createdAt    DateTime             @default(now())
+  origin       Country?             @relation(fields: [country_id], references: [id])
+  chapters     Chapter[]
+  artist       Artist?              @relation(fields: [artist_id], references: [id])
+  author       Author?              @relation(fields: [author_id], references: [id])
+  categories   CategoriesOnNovels[]
+  artist_id    String?
+  author_id    String?
+  favorited_by FavoriteOnUser[]
+
+  @@map("novels")
+}
+
+model Category {
+  id     String               @id @default(uuid())
+  slug   String
+  name   String
+  novels CategoriesOnNovels[]
+
+  @@map("categories")
+}
+
+model Chapter {
+  id        String   @id @default(uuid())
+  slug      String
+  volume    Int
+  number    Int
+  title     String
+  content   String
+  views     Int      @default(0)
+  novel_id  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  novel     Novel    @relation(fields: [novel_id], references: [id])
+
+  @@map("chapters")
+}
+
+model Author {
+  id          String  @id @default(uuid())
+  slug        String
+  name        String
+  likes       Int     @default(0)
+  image       String?
+  description String?
+  novels      Novel[]
+
+  @@map("authors")
+}
+
+model Artist {
+  id          String  @id @default(uuid())
+  slug        String
+  name        String
+  likes       Int     @default(0)
+  image       String?
+  description String
+  novels      Novel[]
+
+  @@map("artists")
+}
+
+model Country {
+  id     String  @id @default(uuid())
+  slug   String
+  name   String
+  novels Novel[]
+
+  @@map("countries")
+}
+
+model FavoriteOnUser {
+  id       String @id @default(uuid())
+  User     User   @relation(fields: [user_id], references: [id])
+  user_id  String
+  Novel    Novel  @relation(fields: [novel_id], references: [id])
+  novel_id String
+
+  @@map("favoretes_user")
+}
+
+model CategoriesOnNovels {
+  id          String   @default(uuid())
+  Novel       Novel    @relation(fields: [novel_id], references: [id])
+  novel_id    String
+  Category    Category @relation(fields: [category_id], references: [id])
+  category_id String
+
+  @@id([novel_id, category_id])
+  @@map("categories_novels")
+}
+
+model ViewsOnNovel {
+  id       String @id @default(uuid())
+  User     User   @relation(fields: [user_id], references: [id])
+  user_id  String
+  Novel    Novel  @relation(fields: [novel_id], references: [id])
+  novel_id String
+
+  @@map("views_user")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Status {
+  ONGOING
+  COMPLETED
+  HIATUS
+}
