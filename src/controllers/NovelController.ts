@@ -10,7 +10,60 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const listNovels = async (req: Request, res: Response) => {
-    let novels = await listAllNovels();
+    let query = req.query;
+    let data: any = {
+        include: {
+            categories: {
+                select: {
+                    Category: {
+                        select: {
+                            name: true,
+                            id: true
+                        }
+                    }
+                }
+            },
+            artist: { select: { name: true } },
+            author: { select: { name: true } },
+            origin: { select: { name: true } }
+        },
+        orderBy: {},
+        take: 10,
+        skip: 0
+    }
+
+    if (query.views === 'asc') {
+        data.orderBy = {
+            views: {
+                _count: 'asc'
+            }
+        }
+    }
+    if (query.views === 'desc') {
+        data.orderBy = {
+            views: {
+                _count: 'desc'
+            }
+        }
+    }
+
+    if (query.take) {
+        data.take = parseInt((query.take as string))
+    }
+
+    if (query.skip) {
+        data.skip = parseInt((query.skip as string))
+    }
+
+    let novels: any = await prisma.novel.findMany(data)
+
+    for (let i in novels) {
+        novels[i].views = await prisma.viewsOnNovel.count({
+            where: {
+                novel_id: novels[i].id
+            }
+        })
+    }
 
     novels ? res.json({ novels }) : res.json({ error: 'Nenhum resultado encontrado!' });
 };
@@ -18,7 +71,6 @@ export const listNovels = async (req: Request, res: Response) => {
 export const listNovel = async (req: Request, res: Response) => {
     const params = req.params;
     const auth = req.headers.authorization;
-    let user_id: string;
 
     if (!params.slug) {
         res.json({ error: 'Nenhum resultado encontrado!' })
@@ -35,7 +87,11 @@ export const listNovel = async (req: Request, res: Response) => {
 
     let chapters = await listChaptersByNovelId(novel.id);
 
-    let views = await prisma.viewsOnNovel.count();
+    let views = await prisma.viewsOnNovel.count({
+        where: {
+            novel_id: novel.id
+        }
+    });
 
     if (req.headers.authorization) {
 
@@ -63,6 +119,7 @@ export const listNovel = async (req: Request, res: Response) => {
             }
         }
     }
+
 
     res.json({ novel, chapters, views });
 };

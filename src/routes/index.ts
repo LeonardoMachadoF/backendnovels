@@ -21,11 +21,11 @@ router.get('/user', privateRoute, upload.single('img'), UserController.listUsers
 router.post('/user/register', userValidator, UserController.registerUser)
 router.post('/user/login', loginValidator, UserController.loginUser)
 
+router.post('/novel', privateRoute, upload.single('img'), novelValidator, NovelController.addNovel)
 router.get('/novels', NovelController.listNovels)
 router.get('/novels/popular', NovelController.getPopularNovels)
-router.post('/novel', privateRoute, upload.single('img'), novelValidator, NovelController.addNovel)
-router.delete('/novel/:id', privateRoute, NovelController.removeNovel)
 router.get('/novel/addfavorite', NovelController.addFavorite)
+router.delete('/novel/:id', privateRoute, NovelController.removeNovel)
 router.get('/novel/:slug', NovelController.listNovel)
 
 router.get('/chapter', ChapterController.listChapters);

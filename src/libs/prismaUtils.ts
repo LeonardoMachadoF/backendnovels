@@ -46,7 +46,7 @@ export const listAllNovels = async () => {
             artist: true,
             author: true,
             origin: true
-        }
+        },
     })
 }
 
