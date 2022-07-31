@@ -75,14 +75,18 @@ export const findNovelBySlug = async (slug: string, include?: boolean) => {
         }
     }
 
-    let data: Data = {
+    let data: any = {
         where: { slug }
     }
 
     if (include) {
-        data.include = { categories: true, artist: { select: { name: true } }, author: { select: { name: true } } };
+        data.include = { categories: { include: { Category: { select: { name: true } } } }, artist: { select: { name: true } }, author: { select: { name: true } } };
     }
-
+    await prisma.novel.findFirst({
+        include: {
+            categories: { include: { Category: { select: { name: true } } } }
+        }
+    })
     return await prisma.novel.findFirst(data);
 };
 

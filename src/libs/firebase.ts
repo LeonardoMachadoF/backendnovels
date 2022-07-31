@@ -1,13 +1,16 @@
 import { initializeApp } from "firebase/app";
 import { getDownloadURL, getStorage, listAll, ref, StorageReference, uploadBytes } from "firebase/storage";
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA9VglKD3jkke0C6mWYmqDD2alPmurwnBc",
-    authDomain: "noveldb-8b92b.firebaseapp.com",
-    projectId: "noveldb-8b92b",
-    storageBucket: "noveldb-8b92b.appspot.com",
-    messagingSenderId: "648223718178",
-    appId: "1:648223718178:web:9c70e48853484df095037b"
+    apiKey: process.env.apiKey,
+    authDomain: process.env.authDomain,
+    projectId: process.env.projectId,
+    storageBucket: process.env.storageBucket,
+    messagingSenderId: process.env.messagingSenderId,
+    appId: process.env.appId
 };
 
 const app = initializeApp(firebaseConfig);
