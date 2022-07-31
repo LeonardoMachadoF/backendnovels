@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
+    "start": "node dist/server.js",
+    "postinstall": "tsc",
     "start-dev": "nodemon -e ts,json src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
